@@ -1,6 +1,7 @@
 import { SerialPort } from 'serialport'
 import { DelimiterParser } from '@serialport/parser-delimiter'
 import enquirer from 'enquirer';
+import getTeamsStatus from './getTeamsStatus.js'
 const { Select, Scale } = enquirer
 
 const port = await SerialPort.list().then(res => res.find(p => p.vendorId?.toLowerCase() == '2e8a'))
@@ -22,7 +23,7 @@ parser.on('data', (d) => {
 async function promptAction() {
     const action = await (new Select({
         message: 'What do you want to do?',
-        choices: ['Set status', 'Set brightness']
+        choices: ['Set status', 'Set brightness', 'Monitor teams status']
       })).run()
     
     if (action === 'Set status') {
@@ -37,10 +38,15 @@ async function promptAction() {
             message: 'Select a brightness',
             scale: [
                 { name: '1', message: 'Dimmest' },
-                { name: '2', message: 'Dim' },
-                { name: '3', message: 'Normal' },
-                { name: '4', message: 'Bright' },
-                { name: '5', message: 'Brightest' }
+                { name: '2', message: '' },
+                { name: '3', message: '' },
+                { name: '4', message: '' },
+                { name: '5', message: '' },
+                { name: '5', message: '' },
+                { name: '6', message: '' },
+                { name: '7', message: '' },
+                { name: '8', message: '' },
+                { name: '9', message: 'Brightest' }
               ],
               choices: [
                 {
@@ -48,14 +54,34 @@ async function promptAction() {
                   message: 'brightness'
                 }],
           })).run()
-          const finalBrightness = (Number(scale.brightness) + 1) /10 * 2
+          const finalBrightness = (Number(scale.brightness) + 1)/10
+          console.log('writing', `brightness:${finalBrightness}\n`)
           serialport.write(`brightness:${finalBrightness}\n`);
+    }
+    else if (action === 'Monitor teams status') {
+        let previousStatus = ''
+        const statusMap = {
+            Available: 'available',
+            Busy: 'busy',
+            'Do not disturb': 'dnd',
+            'Be right back': 'away',
+            'Appear away': 'away',
+            'Out of office': 'out of office',
+        }
+        async function checkTeamsStatusAndQueueNext() {
+            const status = await getTeamsStatus()
+            if (previousStatus !== status) {
+                console.log(`Status changed: ${previousStatus} -> ${status}`)
+                serialport.write(`status:${statusMap[status]}\n`);
+            }
+            previousStatus = status
+            setTimeout(checkTeamsStatusAndQueueNext, 2000)
+        }
+        checkTeamsStatusAndQueueNext()
     }
     promptAction()
 }
 
 promptAction()
-
-
 
 // serialport.write('status:clear\n');
