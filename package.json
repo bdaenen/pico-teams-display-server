@@ -1,21 +1,26 @@
 {
-  "name": "msteams-status-server",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "type": "module",
-  "private": true,
-  "os": ["darwin"],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Benno Daenen <benno.daenen@gmail.com>",
-  "license": "UNLICENSED",
-  "dependencies": {
-    "@serialport/parser-readline": "12.0.0",
-    "enquirer": "2.4.1",
-    "prettier": "3.3.3",
-    "run-applescript": "7.0.0",
-    "serialport": "12.0.0"
-  }
+    "name": "msteams-status-server",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "private": true,
+    "os": [
+        "darwin"
+    ],
+    "bin": {
+        "mtss": "index.js"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Benno Daenen <benno.daenen@gmail.com>",
+    "license": "UNLICENSED",
+    "dependencies": {
+        "@serialport/parser-readline": "12.0.0",
+        "enquirer": "2.4.1",
+        "prettier": "3.3.3",
+        "run-applescript": "7.0.0",
+        "serialport": "12.0.0"
+    }
 }
