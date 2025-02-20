@@ -3,7 +3,7 @@ import { SerialPort } from 'serialport'
 import { DelimiterParser } from '@serialport/parser-delimiter'
 import enquirer from 'enquirer'
 import { getTeamsStatus, isMicrophoneActive } from './utils.js'
-const { Select, Scale } = enquirer
+const { Select, Scale, Input } = enquirer
 
 const port = await SerialPort.list().then(res =>
     res.find(p => p.vendorId?.toLowerCase() === '2e8a')
@@ -36,6 +36,7 @@ async function promptAction() {
             'Set status',
             'Set brightness',
             `${isTrackingTeamsStatus ? 'Stop monitoring' : 'Monitor'} teams status`,
+            'Debug color'
         ],
     }).run()
 
@@ -113,6 +114,12 @@ async function promptAction() {
     } else if (action === 'Stop monitoring teams status') {
         clearTimeout(trackingTimeoutRef)
         isTrackingTeamsStatus = false
+    }
+    else if (action === 'Debug color') {
+        const status = await new Input({
+            message: 'Write the number in hex RGB (565) format'
+        }).run()
+        serialport.write(`color:${status}\n`)
     }
     promptAction()
 }
